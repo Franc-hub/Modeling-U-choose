@@ -1,6 +1,6 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String,Boolean,Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
@@ -8,25 +8,64 @@ from eralchemy import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
+class Student(Base):
+    __tablename__ = 'student'
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    full_name = Column(String(120), unique=False, nullable=False)
+    email = Column(String(120), unique=True, nullable=False)
+    password = Column(String(80), unique=False, nullable=False)
+    is_active = Column(Boolean(), unique=False, nullable=False)
+    promo = Column(Boolean(), unique=False, nullable=False)
+    img = Column(String(250), unique=True, nullable=False)
+    school = relationship(
+    "School",
+    secondary=association_table,
+    back_populates="school")
+    
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+class Teacher(Base):
+    __tablename__ = 'teacher'
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    full_name = Column(String(120), unique=False, nullable=False)
+    email = Column(String(120), unique=True, nullable=False)
+    password = Column(String(80), unique=False, nullable=False)
+    type_of_teacher = Column(String(80), unique=False, nullable=False)
+    linkedin = Column(String(80), unique=False, nullable=False)
+    is_active = Column(Boolean(), unique=False, nullable=False)
+    promo = Column(Boolean(), unique=False, nullable=False)
+    img = Column(String(250), unique=True, nullable=False)
+    school = relationship(  
+    "School",
+    secondary=association_table,
+    back_populates="school")
 
-    def to_dict(self):
+class School(Base):
+    __tablename__ = 'school'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(120), unique=False, nullable=False)
+    img = Column(String(250), unique=True, nullable=False)
+    students = relationship(
+    "Student",
+    secondary=association_table,
+    back_populates="student")
+    teachers =  relationship(  
+    "Teacher",
+    secondary=association_table,
+    back_populates="teacher")
+  
+    
+
+school_student = Table('school_student', Base.metadata,
+    Column('student_id', Integer, ForeignKey('student.id')),
+    Column('school_id', Integer, ForeignKey('school.id'))
+)
+teacher_student = Table('teacher_student', Base.metadata,
+    Column('teacher_id', Integer, ForeignKey('teacher.id')),
+    Column('school_id', Integer, ForeignKey('school.id'))
+)
+
+
+def to_dict(self):
         return {}
 
 ## Draw from SQLAlchemy base
